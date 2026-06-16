@@ -1,58 +1,52 @@
 import pathlib, shutil, os
+from pathlib import Path
 
-home_path = os.path.expanduser('~')
-path = home_path + r"\Downloads"
+path = Path.home() / "Downloads"
+
+FILE_CATEGORIES = {
+    "images": {".jpeg", ".jpg", ".png", ".svg", ".avif", ".ico", ".webp", ".gif"},
+    "executables": {".exe", ".msi", ".bat", ".cmd"},
+    "videos": {".mp4", ".avi", ".mov", ".webm", ".mpeg", ".mpg", ".wmv"},
+    "musics": {".mp3", ".wav", ".m4a"},
+    "documents": {".pdf", ".docx", ".doc", ".txt", ".odt", ".rtf", ".xls", ".xlsx", ".ppt", ".md"},
+    "archives": {".zip", ".rar", ".7z", ".tar", ".gz"},
+    "torrents": {".torrent"},
+    "iso": {".iso"}
+}
 
 
+def get_cotegory(suffix: str) -> str:
+    for cat, ext in FILE_CATEGORIES.items():
+        if suffix in ext:
+            return cat
+    return "others"
 
-try: 
-    for filename in os.listdir(path):
-        p = pathlib.Path(filename)
-        filepath = os.path.join(path, filename)
-        if os.path.isfile(filepath):
-            if p.suffix == ".jpeg" or p.suffix == ".jpg" or p.suffix == ".png" or p.suffix == ".svg" or p.suffix == ".avif" or p.suffix == ".ico" or p.suffix == ".webp" or p.suffix == ".gif":
-                print("КАРТИНКА 📷: ", filename)
-                if not os.path.exists(path + r"\images"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\images")
-                shutil.move(filepath, os.path.join(path, "images"))
-            elif p.suffix == ".exe" or p.suffix == ".msi" or p.suffix == ".bat" or p.suffix == ".cmd":
-                if not os.path.exists(path + r"\executables"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\executables")
-                shutil.move(filepath, os.path.join(path, "executables"))
-            elif p.suffix == ".mp4" or p.suffix == ".avi" or p.suffix == ".mov" or p.suffix == ".webm" or p.suffix == ".mpeg" or p.suffix == ".mpg" or p.suffix == ".wmv":
-                if not os.path.exists(path + r"\videos"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\videos")
-                shutil.move(filepath, os.path.join(path, "videos"))
-            elif p.suffix == ".mp3" or p.suffix == ".wav" or p.suffix == ".m4a":
-                if not os.path.exists(path + r"\musics"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\musics")
-                shutil.move(filepath, os.path.join(path, "musics"))
-            elif p.suffix == ".pdf" or p.suffix == ".docx" or p.suffix == ".doc" or p.suffix == ".txt" or p.suffix == ".odt" or p.suffix == ".rtf" or p.suffix == ".xls" or p.suffix == ".xlsx" or p.suffix == ".ppt" or p.suffix == ".md":
-                if not os.path.exists(path + r"\documents"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\documents")
-                shutil.move(filepath, os.path.join(path, "documents"))
-            elif p.suffix == ".zip" or p.suffix == ".7z" or p.suffix == ".rar" or p.suffix == ".tar" or p.suffix == ".gz":
-                if not os.path.exists(path + r"\archives"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\archives")
-                shutil.move(filepath, os.path.join(path, "archives"))
-            elif p.suffix == ".torrent":
-                if not os.path.exists(path + r"\torrents"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\torrents")
-                shutil.move(filepath, os.path.join(path, "torrents"))
-            else:
-                if not os.path.exists(path + r"\others"):
-                    print("СОЗДАЕМ ПАПКУ 📁")
-                    os.mkdir(path + r"\others")
-                shutil.move(filepath, os.path.join(path, "others"))
+
+try:
+    for filepath in path.iterdir():
+        if not filepath.is_file():
+            continue
+    suffix = filepath.suffix.lower()
+    category = get_cotegory(suffix)
+
+    target_folder = path / category
+    target_folder.mkdir(exist_ok=True)
+
+    target_path = target_folder / filepath.name
+
+    if target_path.exists():
+        stem = filepath.stem()
+        print(f"STEM: {stem}")
+        counter = 1
+        while target_path.exists():
+            target_path = target_folder / f"{stem}_{counter}{suffix}"
+            counter += 1
+    
+    shutil.move(str(filepath), str(target_path))
+    print(f"{filepath.name} -> {category}")
 except Exception as e:
-    print(f"Что то пошло не так...: {e}")
+    print(f"Произошла ошибка: {e}")
+
 
 
 print("Сортировка завершена ✅")
