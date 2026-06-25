@@ -26,24 +26,24 @@ try:
     for filepath in path.iterdir():
         if not filepath.is_file():
             continue
-    suffix = filepath.suffix.lower()
-    category = get_cotegory(suffix)
+        suffix = filepath.suffix.lower()
+        category = get_cotegory(suffix)
 
-    target_folder = path / category
-    target_folder.mkdir(exist_ok=True)
+        target_folder = path / category
+        target_folder.mkdir(exist_ok=True)
 
-    target_path = target_folder / filepath.name
+        target_path = target_folder / filepath.name
 
-    if target_path.exists():
-        stem = filepath.stem()
-        print(f"STEM: {stem}")
-        counter = 1
-        while target_path.exists():
-            target_path = target_folder / f"{stem}_{counter}{suffix}"
-            counter += 1
+        if target_path.exists():
+            stem = filepath.stem()
+            print(f"STEM: {stem}")
+            counter = 1
+            while target_path.exists():
+                target_path = target_folder / f"{stem}_{counter}{suffix}"
+                counter += 1
     
-    shutil.move(str(filepath), str(target_path))
-    print(f"{filepath.name} -> {category}")
+        shutil.move(str(filepath), str(target_path))
+        print(f"{filepath.name} -> {category}")
 except Exception as e:
     print(f"Произошла ошибка: {e}")
 
